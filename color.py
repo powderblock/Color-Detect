@@ -1,29 +1,33 @@
 import numpy as np
-import argparse
 import cv2
- 
-# argument parse and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", help = "path to the image")
-args = vars(ap.parse_args())
- 
-# load the image
-image = cv2.imread(args["image"])
+
+webcam = cv2.VideoCapture(0)
+
+if webcam.isOpened(): # try to get the first frame
+    rval, image = webcam.read()
+else:
+    rval = False
 
 # define the list of acceptable colors
-colors = [([17, 15, 100], [50, 56, 200])]
+colors = [([0, 0, 0], [255, 155, 255])]
 
-# loop over the boundaries
-for (lower, upper) in colors:
-	# create NumPy arrays from the boundaries
-	lower = np.array(lower, dtype = "uint8")
-	upper = np.array(upper, dtype = "uint8")
- 
-	# find the colors within the specified boundaries and apply
-	# the mask
-	mask = cv2.inRange(image, lower, upper)
-	output = cv2.bitwise_and(image, image, mask = mask)
- 
-	# show the images
-	cv2.imshow("images", np.hstack([image, output]))
-	cv2.waitKey(0)
+while rval:
+        # loop over the boundaries
+        for (lower, upper) in colors:
+                # create NumPy arrays from the boundaries
+                lower = np.array(lower, dtype = "uint8")
+                upper = np.array(upper, dtype = "uint8")
+         
+                # find the colors within the specified boundaries and apply
+                # the mask
+                mask = cv2.inRange(image, lower, upper)
+                output = cv2.bitwise_and(image, image, mask = mask)
+         
+                # show the images
+                cv2.imshow("images", np.hstack([image, output]))
+        rval, image = webcam.read()
+        
+        key = cv2.waitKey(20)
+        if key in [27, ord('Q'), ord('q')]: # exit on ESC
+                cv2.destroyWindow("images")
+                break
